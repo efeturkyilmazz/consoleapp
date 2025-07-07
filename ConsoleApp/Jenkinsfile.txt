@@ -2,33 +2,42 @@
     agent any
 
     environment {
+        GIT_CREDENTIALS = credentials('Sonarqube login token')  // name of the Jenkins credential you created
         SONARQUBE_SCANNER = 'SonarScanner' // Jenkins > Global Tool Configuration ismi
         SONARQUBE_SERVER = 'SonarQubeServer' // Jenkins > Manage Jenkins > SonarQube ayarı
-        PROJECT_KEY = 'MyConsoleApp'
-        PROJECT_NAME = 'My Console App'
+        PROJECT_KEY = 'ConsoleApp'
+        PROJECT_NAME = 'Console App'
     }
-
+     
+        
+    
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/efeturkyilmazz/consoleapp.git'
+                script {
+                 checkout scmGit(
+                        branches: [[name: 'main']],
+                        userRemoteConfigs: [[url: 'https://github.com/efeturkyilmazz/consoleapp.git']])
+                }
             }
-        }
 
         stage('Restore') {
             steps {
                 sh 'dotnet restore'
             }
         }
+    }
 
         stage('SonarQube Analysis Begin') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    sh """
-                        dotnet tool install --global dotnet-sonarscanner || true
-                        export PATH="$PATH:/root/.dotnet/tools"
-                        dotnet-sonarscanner begin /k:"${PROJECT_KEY}" /n:"${PROJECT_NAME}" /d:sonar.login=$SONAR_AUTH_TOKEN
-                    """
+                withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                        sh """
+                            dotnet tool install --global dotnet-sonarscanner || true
+                            export PATH="\$PATH:/root/.dotnet/tools"
+                            dotnet-sonarscanner begin /k:"${PROJECT_KEY}" /n:"${PROJECT_NAME}" /d:sonar.login=$SONAR_AUTH_TOKEN
+                        """
+                    }
                 }
             }
         }
@@ -45,10 +54,12 @@
             }
         }
 
-        stage('SonarQube Analysis End') {
+       stage('SonarQube Analysis End') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    sh 'export PATH="$PATH:/root/.dotnet/tools" && dotnet-sonarscanner end /d:sonar.login=$SONAR_AUTH_TOKEN'
+                withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                        sh 'export PATH="$PATH:/root/.dotnet/tools" && dotnet-sonarscanner end /d:sonar.login=$SONAR_AUTH_TOKEN'
+                    }
                 }
             }
         }
@@ -64,7 +75,7 @@
 
     post {
         success {
-            mail to: 'projeapp220@gmail.com',
+            mail to: '426970310f8b4a',
                  subject: " BUILD SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: """
 Success
@@ -76,7 +87,7 @@ Success
         }
 
         failure {
-            mail to: 'projeapp220@gmail.com',
+            mail to: '426970310f8b4a',
                  subject: " BUILD FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: """
 Build has failed or SonarQube does not access from quality gate.
