@@ -20,13 +20,14 @@
                         userRemoteConfigs: [[url: 'https://github.com/efeturkyilmazz/consoleapp.git']])
                 }
             }
+            }
 
         stage('Restore') {
             steps {
                 sh 'dotnet restore'
             }
         }
-    }
+    
 
         stage('SonarQube Analysis Begin') {
             steps {
