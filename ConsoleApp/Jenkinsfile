@@ -1,103 +1,185 @@
-﻿pipeline {
+pipeline {
+
     agent any
-
+ 
     environment {
+
         GIT_CREDENTIALS = credentials('Sonarqube login token')  // name of the Jenkins credential you created
+
         SONARQUBE_SCANNER = 'SonarScanner' // Jenkins > Global Tool Configuration ismi
+
         SONARQUBE_SERVER = 'SonarQubeServer' // Jenkins > Manage Jenkins > SonarQube ayarı
+
         PROJECT_KEY = 'ConsoleApp'
+
         PROJECT_NAME = 'Console App'
-    }
-     
-        
-    
+
+    }   
+
     stages {
+        stage('BOM Check & Lint') {
+                steps {
+                    echo '🔍 Running BOM and Lint checks...'
+                    sh 'chmod +x ./ci-check.sh'
+                    sh './ci-check.sh'
+                }
+            }
+
         stage('Checkout') {
+
             steps {
+
                 script {
+
                  checkout scmGit(
+
                         branches: [[name: 'main']],
+
                         userRemoteConfigs: [[url: 'https://github.com/efeturkyilmazz/consoleapp.git']])
+
                 }
-            }
+
             }
 
-        stage('Restore') {
-            steps {
-                sh 'dotnet restore'
-            }
-        }
-    
+		}
+ 
+		stage('Restore') {
 
+			steps {
+
+				sh 'dotnet restore'
+
+			}
+
+		}
+
+ 
         stage('SonarQube Analysis Begin') {
+
             steps {
+
                 withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
+
                         sh """
+
                             dotnet tool install --global dotnet-sonarscanner || true
+
                             export PATH="\$PATH:/root/.dotnet/tools"
+
                             dotnet-sonarscanner begin /k:"${PROJECT_KEY}" /n:"${PROJECT_NAME}" /d:sonar.login=$SONAR_AUTH_TOKEN
+
                         """
-                    }
-                }
-            }
-        }
 
+                    }
+
+                }
+
+            }
+
+        }
+ 
         stage('Build') {
+
             steps {
+
                 sh 'dotnet build --configuration Release'
-            }
-        }
 
+            }
+
+        }
+ 
         stage('Test') {
+
             steps {
+
                 sh 'dotnet test --no-build'
-            }
-        }
 
+            }
+
+        }
+ 
        stage('SonarQube Analysis End') {
+
             steps {
+
                 withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
+
                         sh 'export PATH="$PATH:/root/.dotnet/tools" && dotnet-sonarscanner end /d:sonar.login=$SONAR_AUTH_TOKEN'
+
                     }
-                }
-            }
-        }
 
+                }
+
+            }
+
+        }
+ 
         stage('Wait for Quality Gate') {
+
             steps {
+
                 timeout(time: 2, unit: 'MINUTES') {
+
                     waitForQualityGate abortPipeline: true
+
                 }
+
             }
-        }
-    }
 
+        }
+
+    }
+ 
     post {
+
         success {
+
             mail to: '426970310f8b4a',
-                 subject: " BUILD SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: """
-Success
 
- Project: ${env.JOB_NAME}
- Build No: ${env.BUILD_NUMBER}
- Details: ${env.BUILD_URL}
-"""
+            subject: " BUILD SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+            body: """
+
+			Success
+ 
+			 Project: ${env.JOB_NAME}
+
+			 Build No: ${env.BUILD_NUMBER}
+
+			 Details: ${env.BUILD_URL}
+
+			"""
+
         }
-
+ 
         failure {
-            mail to: '426970310f8b4a',
-                 subject: " BUILD FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: """
-Build has failed or SonarQube does not access from quality gate.
 
- Project: ${env.JOB_NAME}
- Build No: ${env.BUILD_NUMBER}
- Details: ${env.BUILD_URL}
-Please check the console logs.
-"""
+            mail to: '426970310f8b4a',
+
+            subject: " BUILD FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+            body: """
+
+			Build has failed or SonarQube does not access from quality gate.
+ 
+			 Project: ${env.JOB_NAME}
+
+			 Build No: ${env.BUILD_NUMBER}
+
+			 Details: ${env.BUILD_URL}
+
+			Please check the console logs.
+
+			"""
+
         }
+
     }
+
 }
+
+ 
