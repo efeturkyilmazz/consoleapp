@@ -134,51 +134,7 @@ pipeline {
 
     }
  
-    post {
 
-        success {
-
-            mail to: '426970310f8b4a',
-
-            subject: " BUILD SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-
-            body: """
-
-			Success
- 
-			 Project: ${env.JOB_NAME}
-
-			 Build No: ${env.BUILD_NUMBER}
-
-			 Details: ${env.BUILD_URL}
-
-			"""
-
-        }
- 
-        failure {
-
-            mail to: '426970310f8b4a',
-
-            subject: " BUILD FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-
-            body: """
-
-			Build has failed or SonarQube does not access from quality gate.
- 
-			 Project: ${env.JOB_NAME}
-
-			 Build No: ${env.BUILD_NUMBER}
-
-			 Details: ${env.BUILD_URL}
-
-			Please check the console logs.
-
-			"""
-
-        }
-
-    }
 
 }
 
