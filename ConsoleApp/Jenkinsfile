@@ -4,9 +4,7 @@ pipeline {
  
     environment {
 
-        SONARQUBE_SCANNER = 'SonarScanner' // Jenkins > Global Tool Configuration ismi
         PROJECT_KEY = 'ConsoleApp'
-
         PROJECT_NAME = 'Console App'
 
     }   
@@ -14,68 +12,50 @@ pipeline {
     stages {
         stage('BOM Check & Lint') {
                 steps {
-                    echo '🔍 Running BOM and Lint checks...'
+                    echo 'Running BOM and Lint checks...'
                     bat 'chmod +x ./ci-check.sh'
                     bat './ci-check.sh'
                 }
             }
 
         stage('Checkout') {
-
             steps {
-
                 script {
-
                  checkout scmGit(
-
                         branches: [[name: 'main']],
-
                         userRemoteConfigs: [[url: 'https://github.com/efeturkyilmazz/consoleapp.git']])
 
                 }
-
             }
-
 		}
  
 		stage('Restore') {
-
 			steps {
-
 				bat 'dotnet restore'
 
 			}
-
 		}
 
- 
         stage('SonarQube Analysis Begin') {
 
-            steps {
-
-                
-
-                    withSonarQubeEnv('SonarQubeServer') {
+            steps {                
+                    withSonarQubeEnv('MySonarQubeServer') {
 
                         bat """
-                        echo "🔧 Installing dotnet-sonarscanner (if not exists)..."
+                        echo "Installing dotnet-sonarscanner (if not exists)..."
                             dotnet tool install --global sonarscanner || true
                             echo "step 2"
                             export PATH="\$PATH:/root/.dotnet/tools"
                             
-                    echo "🚀 Starting SonarQube analysis..."
+                    echo "Starting SonarQube analysis..."
                     dotnet sonarscanner begin \
                         /k:"'"${PROJECT_KEY}"'" \
                         /n:"'"${PROJECT_NAME}"'"
 
                         """
 
-                    }
-
-                
-
-            }
-
+                    }              
+              }
         }
  
         stage('Build') {
@@ -83,44 +63,29 @@ pipeline {
             steps {
 
                 bat 'dotnet build --configuration Release'
-
             }
-
         }
- 
- stage('SonarQube Analysis End') {
-    steps {
-        
-                    withSonarQubeEnv('SonarQubeServer') {
-                bat '''
-                    echo "📦 Finalizing SonarQube analysis..."
-                    export PATH="$PATH:/root/.dotnet/tools"
-                    dotnet sonarscanner end 
-                '''
-            }
-        
-    }
-}
 
- 
-        stage('Wait for Quality Gate') {
-
+         stage('SonarQube Analysis End') {
             steps {
-
-                timeout(time: 2, unit: 'MINUTES') {
-
-                    waitForQualityGate abortPipeline: true
-
-                }
-
-            }
-
+                            withSonarQubeEnv('MySonarQubeServer') {
+                        bat '''
+                            echo "Finalizing SonarQube analysis..."
+                            export PATH="$PATH:/root/.dotnet/tools"
+                            dotnet sonarscanner end 
+                        '''
+                    }       
+             }
         }
 
+        stage('Wait for Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
     }
- 
-
-
 }
 
  

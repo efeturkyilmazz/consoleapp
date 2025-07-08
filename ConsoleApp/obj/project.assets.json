@@ -8,29 +8,27 @@
     "net8.0": []
   },
   "packageFolders": {
-    "C:\\Users\\hkasimay-int\\.nuget\\packages\\": {},
+    "C:\\Users\\eturkyilmaz.int\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\DevExpress 21.1\\Components\\Offline Packages": {},
     "C:\\Program Files\\DevExpress 22.1\\Components\\Offline Packages": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\hkasimay-int\\Desktop\\consoleapp\\ConsoleApp\\ConsoleApp.csproj",
+      "projectUniqueName": "C:\\Users\\eturkyilmaz.int\\Desktop\\consoleapp\\ConsoleApp\\ConsoleApp.csproj",
       "projectName": "ConsoleApp",
-      "projectPath": "C:\\Users\\hkasimay-int\\Desktop\\consoleapp\\ConsoleApp\\ConsoleApp.csproj",
-      "packagesPath": "C:\\Users\\hkasimay-int\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\hkasimay-int\\Desktop\\consoleapp\\ConsoleApp\\obj\\",
+      "projectPath": "C:\\Users\\eturkyilmaz.int\\Desktop\\consoleapp\\ConsoleApp\\ConsoleApp.csproj",
+      "packagesPath": "C:\\Users\\eturkyilmaz.int\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\eturkyilmaz.int\\Desktop\\consoleapp\\ConsoleApp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\DevExpress 21.1\\Components\\Offline Packages",
         "C:\\Program Files\\DevExpress 22.1\\Components\\Offline Packages",
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\hkasimay-int\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\eturkyilmaz.int\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 21.1.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 22.1.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
@@ -43,7 +41,6 @@
         "C:\\Program Files (x86)\\DevExpress 21.1\\Components\\System\\Components\\Packages": {},
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "C:\\Program Files\\DevExpress 22.1\\Components\\System\\Components\\Packages": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
