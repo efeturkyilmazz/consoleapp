@@ -15,8 +15,8 @@ pipeline {
         stage('BOM Check & Lint') {
                 steps {
                     echo '🔍 Running BOM and Lint checks...'
-                    sh 'chmod +x ./ci-check.sh'
-                    sh './ci-check.sh'
+                    bat 'chmod +x ./ci-check.sh'
+                    bat './ci-check.sh'
                 }
             }
 
@@ -42,7 +42,7 @@ pipeline {
 
 			steps {
 
-				sh 'dotnet restore'
+				bat 'dotnet restore'
 
 			}
 
@@ -57,7 +57,7 @@ pipeline {
 
                     withSonarQubeEnv('SonarQubeServer') {
 
-                        sh """
+                        bat """
                         echo "🔧 Installing dotnet-sonarscanner (if not exists)..."
                             dotnet tool install --global sonarscanner || true
                             echo "step 2"
@@ -82,7 +82,7 @@ pipeline {
 
             steps {
 
-                sh 'dotnet build --configuration Release'
+                bat 'dotnet build --configuration Release'
 
             }
 
@@ -92,7 +92,7 @@ pipeline {
     steps {
         
                     withSonarQubeEnv('SonarQubeServer') {
-                sh '''
+                bat '''
                     echo "📦 Finalizing SonarQube analysis..."
                     export PATH="$PATH:/root/.dotnet/tools"
                     dotnet sonarscanner end 
