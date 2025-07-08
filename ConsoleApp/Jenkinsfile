@@ -9,7 +9,7 @@ pipeline {
         SONARQUBE_SCANNER = 'SonarScanner' // Jenkins > Global Tool Configuration ismi
 
         SONARQUBE_SERVER = 'SonarQubeServer' // Jenkins > Manage Jenkins > SonarQube ayarı
-
+        SONARQUBE_TOKEN='sqa_143da33efb86e9882fcc26e54f652c1b737aa859'
         PROJECT_KEY = 'ConsoleApp'
 
         PROJECT_NAME = 'Console App'
@@ -58,7 +58,7 @@ pipeline {
 
             steps {
 
-                withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+                
 
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
 
@@ -72,13 +72,13 @@ pipeline {
                     dotnet-sonarscanner begin \
                         /k:"'"${PROJECT_KEY}"'" \
                         /n:"'"${PROJECT_NAME}"'" \
-                        /d:sonar.login=${SONAR_AUTH_TOKEN}
+                        /d:sonar.login=${SONARQUBE_TOKEN}
 
                         """
 
                     }
 
-                }
+                
 
             }
 
@@ -105,15 +105,15 @@ pipeline {
         }
  stage('SonarQube Analysis End') {
     steps {
-        withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+        
             withSonarQubeEnv("${SONARQUBE_SERVER}") {
                 sh '''
                     echo "📦 Finalizing SonarQube analysis..."
                     export PATH="$PATH:/root/.dotnet/tools"
-                    dotnet-sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
+                    dotnet-sonarscanner end /d:sonar.login=${SONARQUBE_TOKEN}
                 '''
             }
-        }
+        
     }
 }
 
