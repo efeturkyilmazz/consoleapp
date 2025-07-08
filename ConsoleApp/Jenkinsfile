@@ -13,8 +13,8 @@ pipeline {
         stage('BOM Check & Lint') {
             steps {
                 echo 'Running BOM and Lint checks...'
-                bat 'chmod +x ./ci-check.sh'
-                bat './ci-check.sh'
+                sh 'chmod +x ./ci-check.sh'
+                sh './ci-check.sh'
             }
         }
 
@@ -31,7 +31,7 @@ pipeline {
  
 		stage('Restore') {
 			steps {
-				bat 'dotnet restore'
+				sh 'dotnet restore'
 
 			}
 		}
@@ -42,7 +42,7 @@ pipeline {
             withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', VARİABLE: 'SONAR_AUTH_TOKEN')]){
                     withSonarQubeEnv('MySonarQubeServer') {
 
-                        bat """
+                        sh """
                 echo Installing dotnet-sonarscanner...
                 dotnet tool install --global dotnet-sonarscanner || true
                 set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
@@ -60,7 +60,7 @@ pipeline {
 
             steps {
 
-                bat 'dotnet build --configuration Release'
+                sh 'dotnet build --configuration Release'
             }
         }
 
@@ -68,7 +68,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
                     withSonarQubeEnv('MySonarQubeServer') {
-                    bat """
+                    sh """
                     set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
                     dotnet sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
                     """
