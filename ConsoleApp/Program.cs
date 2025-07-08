@@ -6,7 +6,20 @@ namespace HelloConsoleApp
     {
         static void Main(string[] args)
         {
-            
+            // Güvenlik açığı: sabit şifre
+            string secretPassword = "12345"; 
+
+            // Kullanılmayan değişken
+            string unusedVariable = "I will never be used";
+
+            // 3 yerine maxRetries kullanılmalıydı
+            int maxRetries = 3;
+            for (int i = 0; i < 3; i++) 
+            {
+                Console.WriteLine($"Retry: {i}");
+            }
+
+
             Console.WriteLine("Hello Onftech!");
 
             
