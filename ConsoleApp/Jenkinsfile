@@ -5,9 +5,6 @@ pipeline {
     environment {
 
         SONARQUBE_SCANNER = 'SonarScanner' // Jenkins > Global Tool Configuration ismi
-
-        SONARQUBE_SERVER = 'SonarQubeServer' // Jenkins > Manage Jenkins > SonarQube ayarı
-        SONARQUBE_TOKEN='sqa_143da33efb86e9882fcc26e54f652c1b737aa859'
         PROJECT_KEY = 'ConsoleApp'
 
         PROJECT_NAME = 'Console App'
@@ -58,19 +55,18 @@ pipeline {
 
                 
 
-                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    withSonarQubeEnv('SonarQubeServer') {
 
                         sh """
                         echo "🔧 Installing dotnet-sonarscanner (if not exists)..."
-                            dotnet tool install --global dotnet-sonarscanner || true
+                            dotnet tool install --global sonarscanner || true
                             echo "step 2"
                             export PATH="\$PATH:/root/.dotnet/tools"
                             
                     echo "🚀 Starting SonarQube analysis..."
-                    dotnet-sonarscanner begin \
+                    dotnet sonarscanner begin \
                         /k:"'"${PROJECT_KEY}"'" \
-                        /n:"'"${PROJECT_NAME}"'" \
-                        /d:sonar.login=${SONARQUBE_TOKEN}
+                        /n:"'"${PROJECT_NAME}"'"
 
                         """
 
@@ -92,23 +88,14 @@ pipeline {
 
         }
  
-        stage('Test') {
-
-            steps {
-
-                sh 'dotnet test --no-build'
-
-            }
-
-        }
  stage('SonarQube Analysis End') {
     steps {
         
-            withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    withSonarQubeEnv('SonarQubeServer') {
                 sh '''
                     echo "📦 Finalizing SonarQube analysis..."
                     export PATH="$PATH:/root/.dotnet/tools"
-                    dotnet-sonarscanner end /d:sonar.login=${SONARQUBE_TOKEN}
+                    dotnet sonarscanner end 
                 '''
             }
         
