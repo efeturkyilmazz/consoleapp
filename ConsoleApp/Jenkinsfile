@@ -11,12 +11,12 @@ pipeline {
 
     stages {
         stage('BOM Check & Lint') {
-                steps {
-                    echo 'Running BOM and Lint checks...'
-                    bat 'chmod +x ./ci-check.sh'
-                    bat './ci-check.sh'
-                }
+            steps {
+                echo 'Running BOM and Lint checks...'
+                bat 'chmod +x ./ci-check.sh'
+                bat './ci-check.sh'
             }
+        }
 
         stage('Checkout') {
             steps {
@@ -38,24 +38,22 @@ pipeline {
 
         stage('SonarQube Analysis Begin') {
 
-            steps {                
+            steps {
+            withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', VARİABLE: 'SONAR_AUTH_TOKEN')]){
                     withSonarQubeEnv('MySonarQubeServer') {
 
                         bat """
-                        echo "Installing dotnet-sonarscanner (if not exists)..."
-                            dotnet tool install --global sonarscanner || true
-                            echo "step 2"
-                            export PATH="\$PATH:/root/.dotnet/tools"
-                            
-                    echo "Starting SonarQube analysis..."
-                    dotnet sonarscanner begin \
-                        /k:"'"${PROJECT_KEY}"'" \
-                        /n:"'"${PROJECT_NAME}"'"
-
-                        """
-
-                    }              
-              }
+                echo Installing dotnet-sonarscanner...
+                dotnet tool install --global dotnet-sonarscanner || true
+                set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
+                dotnet sonarscanner begin ^
+                    /k:"${PROJECT_KEY}" ^
+                    /n:"${PROJECT_NAME}" ^
+                    /d:sonar.login=${SONAR_AUTH_TOKEN}
+                """
+                }
+              }              
+           }
         }
  
         stage('Build') {
@@ -68,13 +66,14 @@ pipeline {
 
          stage('SonarQube Analysis End') {
             steps {
-                            withSonarQubeEnv('MySonarQubeServer') {
-                        bat '''
-                            echo "Finalizing SonarQube analysis..."
-                            export PATH="$PATH:/root/.dotnet/tools"
-                            dotnet sonarscanner end 
-                        '''
-                    }       
+                withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+                    withSonarQubeEnv('MySonarQubeServer') {
+                    bat """
+                    set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
+                    dotnet sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
+                    """
+                    }
+                 }       
              }
         }
 
@@ -87,5 +86,3 @@ pipeline {
         }
     }
 }
-
- 
