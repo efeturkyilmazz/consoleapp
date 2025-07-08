@@ -63,12 +63,16 @@ pipeline {
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
 
                         sh """
-
+                        echo "🔧 Installing dotnet-sonarscanner (if not exists)..."
                             dotnet tool install --global dotnet-sonarscanner || true
-
+                            echo "step 2"
                             export PATH="\$PATH:/root/.dotnet/tools"
-
-                            dotnet-sonarscanner begin /k:"${PROJECT_KEY}" /n:"${PROJECT_NAME}" /d:sonar.login=$SONAR_AUTH_TOKEN
+                            
+                    echo "🚀 Starting SonarQube analysis..."
+                    dotnet-sonarscanner begin \
+                        /k:"'"${PROJECT_KEY}"'" \
+                        /n:"'"${PROJECT_NAME}"'" \
+                        /d:sonar.login=${SONAR_AUTH_TOKEN}
 
                         """
 
@@ -99,24 +103,20 @@ pipeline {
             }
 
         }
- 
-       stage('SonarQube Analysis End') {
-
-            steps {
-
-                withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
-
-                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
-
-                        sh 'export PATH="$PATH:/root/.dotnet/tools" && dotnet-sonarscanner end /d:sonar.login=$SONAR_AUTH_TOKEN'
-
-                    }
-
-                }
-
+ stage('SonarQube Analysis End') {
+    steps {
+        withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+            withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                sh '''
+                    echo "📦 Finalizing SonarQube analysis..."
+                    export PATH="$PATH:/root/.dotnet/tools"
+                    dotnet-sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
+                '''
             }
-
         }
+    }
+}
+
  
         stage('Wait for Quality Gate') {
 
