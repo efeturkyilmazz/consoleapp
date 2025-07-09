@@ -10,6 +10,15 @@ pipeline {
     }   
 
     stages {
+        stage('Check workspace files') {
+  steps {
+    sh 'pwd'
+    sh 'ls -l'
+    sh 'ls -l ConsoleApp'
+  }
+}
+
+
         stage('BOM Check & Lint') {
             steps {
                 echo 'Running BOM and Lint checks...'
