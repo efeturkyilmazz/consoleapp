@@ -33,7 +33,7 @@ pipeline {
         
         stage('SonarQube Analysis Begin') {
             steps {
-                withCredentials([string(credentialsId: 'SONARQUBE_TOKEN', variable: 'SONARQUBE_TOKEN')]) {
+                withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
                         bat """
                         dotnet tool install --global dotnet-sonarscanner || true
@@ -41,7 +41,7 @@ pipeline {
                         dotnet sonarscanner begin ^
                           /k:"${PROJECT_KEY}" ^
                           /n:"${PROJECT_NAME}" ^
-                          /d:sonar.login=${SONARQUBE_TOKEN}
+                          /d:sonar.login=${a}
                         """
                     }
                 }              
