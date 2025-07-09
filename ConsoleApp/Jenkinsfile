@@ -1,15 +1,12 @@
 pipeline {
-
     agent any
  
     environment {
-
         PROJECT_KEY = 'ConsoleApp'
         PROJECT_NAME = 'Console App'
-
     }   
-
-
+    
+    stages {
         stage('BOM Check & Lint') {
             steps {
                 echo 'Running BOM and Lint checks...'
@@ -17,30 +14,27 @@ pipeline {
                 bat './ci-check.sh'
             }
         }
-
+        
         stage('Checkout') {
             steps {
                 script {
-                 checkout scmGit(
+                    checkout scmGit(
                         branches: [[name: 'main']],
                         userRemoteConfigs: [[url: 'https://github.com/efeturkyilmazz/consoleapp.git']])
-
                 }
             }
-		}
+        }
  
-		stage('Restore') {
-			steps {
-				bat 'dotnet restore'
-
-			}
-		}
-
-        stage('SonarQube Analysis Begin') {
-
+        stage('Restore') {
             steps {
-            withCredentials([string(credentialsId: 'SONARQUBE_TOKEN', variable: 'SONARQUBE_TOKEN')]) {
-                    withSonarQubeEnv('MySonarQubeServer') {
+                bat 'dotnet restore'
+            }
+        }
+        
+        stage('SonarQube Analysis Begin') {
+            steps {
+                withCredentials([string(credentialsId: 'SONARQUBE_TOKEN', variable: 'SONARQUBE_TOKEN')]) {
+                    withSonarQubeEnv('a') {
                         bat """
                         dotnet tool install --global dotnet-sonarscanner || true
                         set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
@@ -49,32 +43,30 @@ pipeline {
                           /n:"${PROJECT_NAME}" ^
                           /d:sonar.login=${SONARQUBE_TOKEN}
                         """
-                }
-              }              
-           }
+                    }
+                }              
+            }
         }
  
         stage('Build') {
-
             steps {
-
                 bat 'dotnet build --configuration Release'
             }
         }
-
-         stage('SonarQube Analysis End') {
+        
+        stage('SonarQube Analysis End') {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
-                    withSonarQubeEnv('MySonarQubeServer') {
-                    bat """
-                    set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
-                    dotnet sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
-                    """
+                    withSonarQubeEnv('a') {
+                        bat """
+                        set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
+                        dotnet sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
+                        """
                     }
-                 }       
-             }
+                }       
+            }
         }
-
+        
         stage('Wait for Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
