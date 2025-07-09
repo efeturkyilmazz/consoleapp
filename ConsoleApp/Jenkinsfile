@@ -56,11 +56,11 @@ pipeline {
         
         stage('SonarQube Analysis End') {
             steps {
-                withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
+                withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
                         bat """
                         set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
-                        dotnet sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
+                        dotnet sonarscanner end /d:sonar.login=${a}
                         """
                     }
                 }       
