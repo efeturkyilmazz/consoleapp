@@ -4,6 +4,7 @@
     environment {
         PROJECT_KEY = 'ConsoleApp'
         PROJECT_NAME = 'Console App'
+        SONAR_TOKEN= credentials('a')
     }   
     
     stages {
