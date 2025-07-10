@@ -10,8 +10,8 @@
         stage('BOM Check & Lint') {
             steps {
                 echo 'Running BOM and Lint checks...'
-                bat 'chmod +x ./ci-check.sh'
-                bat './ci-check.sh'
+                sh 'chmod +x ./ci-check.sh'
+                sh './ci-check.sh'
             }
         }
         
@@ -27,7 +27,7 @@
  
         stage('Restore') {
             steps {
-                bat 'dotnet restore'
+                sh 'dotnet restore'
             }
         }
         
@@ -35,7 +35,7 @@
             steps {
                 withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
-                        bat """
+                        sh """
                         dotnet tool install --global dotnet-sonarscanner || true
                         set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
                         dotnet sonarscanner begin ^
@@ -50,7 +50,7 @@
  
         stage('Build') {
             steps {
-                bat 'dotnet build --configuration Release'
+                sh 'dotnet build --configuration Release'
             }
         }
         
@@ -58,7 +58,7 @@
             steps {
                 withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
-                        bat """
+                        sh """
                         set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
                         dotnet sonarscanner end /d:sonar.login=${a}
                         """
