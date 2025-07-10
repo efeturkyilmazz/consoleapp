@@ -1,21 +1,33 @@
 ﻿pipeline {
     agent any
-    
+ 
     environment {
         PROJECT_KEY = 'ConsoleApp'
         PROJECT_NAME = 'Console App'
-    }
+    }   
     
     stages {
-        stage('Projeyi İndir') {
+        stage('BOM Check & Lint') {
             steps {
-                git branch: 'main', url: 'https://github.com/efeturkyilmazz/consoleapp.git'
+                echo 'Running BOM and Lint checks...'
+                bat 'chmod +x ./ci-check.sh'
+                bat './ci-check.sh'
             }
         }
         
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout scmGit(
+                        branches: [[name: 'main']],
+                        userRemoteConfigs: [[url: 'https://github.com/efeturkyilmazz/consoleapp.git']])
+                }
+            }
+        }
+ 
         stage('Restore') {
             steps {
-                sh 'dotnet restore'
+                bat 'dotnet restore'
             }
         }
         
@@ -23,22 +35,22 @@
             steps {
                 withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
-                        sh '''
-                        export PATH="$PATH:$HOME/.dotnet/tools"
-                        dotnet tool install --global dotnet-sonarscanner
-                        dotnet sonarscanner begin \
-                          /k:"${PROJECT_KEY}" \
-                          /n:"${PROJECT_NAME}" \
+                        bat """
+                        dotnet tool install --global dotnet-sonarscanner || true
+                        set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
+                        dotnet sonarscanner begin ^
+                          /k:"${PROJECT_KEY}" ^
+                          /n:"${PROJECT_NAME}" ^
                           /d:sonar.login=${a}
-                        '''
+                        """
                     }
                 }              
             }
         }
-        
+ 
         stage('Build') {
             steps {
-                sh 'dotnet build --configuration Release'
+                bat 'dotnet build --configuration Release'
             }
         }
         
@@ -46,21 +58,24 @@
             steps {
                 withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
-                        sh '''
-                        export PATH="$PATH:$HOME/.dotnet/tools"
+                        bat """
+                        set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
                         dotnet sonarscanner end /d:sonar.login=${a}
-                        '''
+                        """
                     }
                 }       
             }
         }
         
-         stage('Wait for Quality Gate') {
-                    steps {
-                        timeout(time: 8, unit: 'MINUTES') {
-                            waitForQualityGate abortPipeline: true
-                        }
-                    }
+       stage("Quality Gate") {
+    steps {
+        timeout(time: 1, unit: 'MINUTES') {
+            script {
+                def qg = waitForQualityGate()
+                if (qg.status != 'OK') {
+                    error "Pipeline aborted due to quality gate failure: ${qg.status}"
                 }
             }
-}   
+        }
+    }
+}
