@@ -54,7 +54,7 @@
             steps {
                 withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
-                        sh '''
+                        sh """
                         # dotnet-sonarscanner'ı global olarak yükle
                         dotnet tool install --global dotnet-sonarscanner || true
                         # PATH'e dotnet tools'u ekle
@@ -64,7 +64,7 @@
                           /k:"${PROJECT_KEY}" \
                           /n:"${PROJECT_NAME}" \
                           /d:sonar.login=${a}
-                        '''
+                        """
                     }
                 }
             }
@@ -78,12 +78,12 @@
             steps {
                 withCredentials([string(credentialsId: 'a', variable: 'a')]) {
                     withSonarQubeEnv('a') {
-                        sh '''
+                        sh """
                         # PATH'e dotnet tools'u ekle
                         export PATH="$PATH:$HOME/.dotnet/tools"
                         # SonarQube analizi bitir
                         dotnet sonarscanner end /d:sonar.login=${a}
-                        '''
+                        """
                     }
                 }
             }
