@@ -21,7 +21,7 @@ pipeline {
         stage('BOM Check & Lint') {
             steps {
                 echo 'Running BOM and Lint checks...'
-                sh 'chmod +x ./ci-check.sh'
+                sh 'chmod +x ConsoleApp/ci-check.sh'
                 sh './ConsoleApp/ci-check.sh'
             }
         }
