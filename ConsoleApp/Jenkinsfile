@@ -22,7 +22,7 @@ pipeline {
             steps {
                 echo 'Running BOM and Lint checks...'
                 sh 'chmod +x ./ci-check.sh'
-                sh './ci-check.sh'
+                sh './ConsoleApp/ci-check.sh'
             }
         }
         stage('Restore') {
